@@ -1,0 +1,19 @@
+body {
+  background: linear-gradient(135deg, #e0e7ff 0%, #f0fdfa 100%);
+  transition: background 0.4s;
+}
+.card {
+  border-radius: 1.5rem;
+  transition: box-shadow 0.3s;
+}
+.card:hover {
+  box-shadow: 0 8px 32px rgba(60, 60, 120, 0.15);
+  transform: translateY(-4px) scale(1.03);
+}
+body.dark-mode {
+  background: linear-gradient(135deg, #18181b 0%, #23272f 100%);
+}
+.card.dark-mode {
+  background: #23272f !important;
+  color: #f3f4f6;
+}
