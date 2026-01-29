@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Hello Jahan React App Preview</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+    <style>
+      html, body, #root {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+      }
+      body {
+        background: linear-gradient(135deg, #e0e7ff 0%, #f0fdfa 100%);
+        transition: background 0.4s;
+      }
+      .card {
+        border-radius: 1.5rem;
+        transition: box-shadow 0.3s;
+      }
+      .card:hover {
+        box-shadow: 0 8px 32px rgba(60, 60, 120, 0.15);
+        transform: translateY(-4px) scale(1.03);
+      }
+      body.dark-mode {
+        background: linear-gradient(135deg, #18181b 0%, #23272f 100%);
+      }
+      .card.dark-mode {
+        background: #23272f !important;
+        color: #f3f4f6;
+      }
+      .navbar {
+        border-radius: 0 0 1.5rem 1.5rem;
+        transition: background 0.4s;
+      }
+      .navbar .navbar-brand {
+        font-size: 1.35rem;
+        letter-spacing: 1px;
+      }
+      .navbar .btn {
+        transition: background 0.3s, color 0.3s;
+      }
+      .footer {
+        border-top: 1px solid #e5e7eb;
+        transition: background 0.4s, color 0.4s;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.7/dist/umd/supabase.min.js"></script>
+    <script type="text/babel">
+      const SUPABASE_URL = "https://ydmumpaarisrlnpybhcp.supabase.co";
+      const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlkbXVtcGFhcmlzcmxucHliaGNwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTcxNjc5MjEsImV4cCI6MjA3Mjc0MzkyMX0.RFsW2XO3VxR-KoPjGLXfhLZs9gCoz--vGdlFI5hq6sQ";
+      const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+      function App() {
+        const [dark, setDark] = React.useState(() => {
+          const saved = localStorage.getItem('theme');
+          return saved === 'dark';
+        });
+        const [loading, setLoading] = React.useState(true);
+        const [messages, setMessages] = React.useState([]);
+        const [error, setError] = React.useState(null);
+
+        React.useEffect(() => {
+          let ignore = false;
+          async function fetchMessage() {
+            setLoading(true);
+            setError(null);
+            const { data, error } = await supabase
+              .from('message')
+              .select('message');
+            if (!ignore) {
+              if (error) {
+                setError(error.message);
+                setMessages([]);
+              } else {
+                setMessages(Array.isArray(data) ? data : []);
+              }
+              setLoading(false);
+            }
+          }
+          fetchMessage();
+          return () => { ignore = true; };
+        }, []);
+
+        React.useEffect(() => {
+          if (dark) {
+            document.body.classList.add('dark-mode');
+          } else {
+            document.body.classList.remove('dark-mode');
+          }
+          localStorage.setItem('theme', dark ? 'dark' : 'light');
+        }, [dark]);
+
+        let navbarBrandContent = "Hello Jahan";
+        let h1Content = "Hello Jahan";
+        if (!loading && !error && messages.length === 1) {
+          navbarBrandContent = messages[0].message || "";
+          h1Content = messages[0].message || "";
+        }
+
+        return (
+          <div className={`container-fluid vh-100 d-flex flex-column p-0 bg-light${dark ? ' bg-dark' : ''}`}
+            style={{ transition: 'background 0.4s', minHeight: '100vh' }}>
+            {/* Navbar */}
+            <nav className={`navbar navbar-expand-lg shadow-sm animate__animated animate__fadeInDown${dark ? ' bg-dark navbar-dark' : ' bg-white navbar-light'}`} style={{ transition: 'background 0.4s' }}>
+              <div className="container">
+                <a className="navbar-brand fw-bold" href="#" style={{ letterSpacing: '1px' }}>
+                  <i className="bi bi-stars text-primary me-2"></i>
+                  {navbarBrandContent}
+                </a>
+                <button
+                  className={`btn btn-sm ${dark ? 'btn-light' : 'btn-dark'} rounded-pill px-3 ms-auto`}
+                  onClick={() => setDark(d => !d)}
+                  aria-label="Toggle light/dark mode"
+                  style={{ transition: 'background 0.3s, color 0.3s' }}
+                >
+                  <i className={`bi ${dark ? 'bi-sun-fill text-warning' : 'bi-moon-stars-fill text-primary'}`}></i>
+                  <span className="ms-2">{dark ? 'Light' : 'Dark'} Mode</span>
+                </button>
+              </div>
+            </nav>
+            {/* Main Content */}
+            <div className="flex-grow-1 d-flex flex-column justify-content-center align-items-center">
+              <div className={`card shadow-lg p-4 animate__animated animate__fadeInDown${dark ? ' dark-mode' : ''}`} style={{maxWidth: 400, background: dark ? '#23272f' : undefined, color: dark ? '#f3f4f6' : undefined}}>
+                {loading ? (
+                  <div className="d-flex flex-column align-items-center justify-content-center" style={{ minHeight: 120 }}>
+                    <div className="spinner-border text-primary mb-2" role="status">
+                      <span className="visually-hidden">Loading...</span>
+                    </div>
+                    <span className="text-secondary small mt-2">Loading message...</span>
+                  </div>
+                ) : error ? (
+                  <div className="alert alert-danger text-center animate__animated animate__fadeIn animate__faster" role="alert">
+                    {error}
+                  </div>
+                ) : messages.length === 1 ? (
+                  <>
+                    <h1 className="display-4 text-primary text-center mb-3 animate__animated animate__fadeInUp">{h1Content}</h1>
+                    <p className="lead text-center text-secondary animate__animated animate__fadeIn animate__delay-1s">
+                      Welcome to your modern React app!
+                    </p>
+                  </>
+                ) : messages.length > 1 ? (
+                  <>
+                    <h2 className="h4 text-primary text-center mb-3 animate__animated animate__fadeInUp">Messages</h2>
+                    <div className="table-responsive animate__animated animate__fadeIn animate__delay-1s">
+                      <table className="table table-striped table-hover align-middle mb-0">
+                        <thead>
+                          <tr>
+                            <th>Message</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {messages.map((row, idx) => (
+                            <tr key={idx}>
+                              <td>{row.message}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </>
+                ) : (
+                  <div className="alert alert-warning text-center animate__animated animate__fadeIn animate__faster" role="alert">
+                    No message found.
+                  </div>
+                )}
+              </div>
+            </div>
+            {/* Footer */}
+            <footer className={`footer mt-auto py-3 animate__animated animate__fadeInUp${dark ? ' bg-dark text-light' : ' bg-white text-secondary'}`} style={{ borderTop: '1px solid #e5e7eb', transition: 'background 0.4s, color 0.4s' }}>
+              <div className="container text-center small">
+                <span>&copy; {new Date().getFullYear()} Hello Jahan React App. Crafted with <i className="bi bi-heart-fill text-danger"></i></span>
+              </div>
+            </footer>
+          </div>
+        );
+      }
+      const root = ReactDOM.createRoot(document.getElementById('root'));
+      root.render(<App />);
+    </script>
+  </body>
+</html>
